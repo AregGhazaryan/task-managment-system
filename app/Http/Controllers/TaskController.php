@@ -161,8 +161,13 @@ class TaskController extends Controller
      * @param  \App\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Task $task)
+    public function destroy(Request $request, Task $task)
     {
-        //
+        if($request->user()->id === $task->created_by){
+            $task->delete();
+        }else{
+            return response()->json(['message' => 'Unauthorized access'], 201);
+        }
+        return response()->json(['message' => 'Task successfully deleted'], 200);
     }
 }

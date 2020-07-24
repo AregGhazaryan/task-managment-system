@@ -42,5 +42,11 @@ class User extends Authenticatable
         return $this->belongsToMany(\App\Task::class);
     }
 
+    public function createdTasks(){
+        return $this->belongsTo(\App\Task::class, 'id', 'created_by');
+    }
 
+    public function getTasksCountAttribute(){
+        return $this->createdTasks()->count();
+    }
 }

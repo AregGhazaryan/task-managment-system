@@ -14,6 +14,34 @@ class ApiController extends Controller
         return response()->json(['statuses' => $statuses], 200);
     }
 
+    public function getUsersCount(){
+        $count = \App\User::all()->count();
+
+        $users = \App\User::all();
+        
+        $tcount=[];
+        foreach($users as $user){
+            $tcount[] = $user->createdTasks()->count();
+        }
+
+        $tcount = array_filter($tcount);
+        $average = array_sum($tcount)/count($tcount);
+
+        $acount = [];
+        foreach($users as $user){
+            $acount[] = $user->tasks()->count();
+        }
+
+        $acount = array_filter($acount);
+        $a_average = array_sum($acount)/count($acount);
+
+        return response()->json([
+            'users' => $count,
+            'avg' => $average,
+            'avg_per_usr' => $a_average
+        ], 200);
+    }
+
     public function setStatus($id, Request $request){
         $task = \App\Task::find($id);
         $ids = $task->users()->pluck('users.id');

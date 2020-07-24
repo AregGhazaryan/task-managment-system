@@ -3,5 +3,6 @@
     "/css/app.css": "/css/app.css",
     "/about.js": "/about.js",
     "/login.js": "/login.js",
-    "/vendors~login.js": "/vendors~login.js"
+    "/vendors~login.js": "/vendors~login.js",
+    "/vendors~about.js": "/vendors~about.js"
 }

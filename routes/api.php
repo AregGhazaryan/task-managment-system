@@ -24,6 +24,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/task/search', 'TaskController@search');
     Route::resource('task', 'TaskController');
     Route::get('/statuses', 'ApiController@statuses');
+    Route::get('/users-count', 'ApiController@getUsersCount');
     Route::put('/setStatus/{id}', 'ApiController@setStatus');
 });
 

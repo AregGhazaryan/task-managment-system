@@ -37,6 +37,11 @@
                         >Login</router-link
                     >
                 </li>
+                <li v-if="this.user" class="nav-item active">
+                    <a class="nav-link">
+                    {{this.user.name}}
+                    </a>
+                </li>
             </ul>
 
             <button
@@ -52,11 +57,9 @@
 </template>
 <script>
 export default {
-    mounted() {
-        console.log(this.$parent.auth);
-    },
     data() {
         return {
+            user: undefined,
             links: [{ id: 1, url: "/", label: "Home" }, {id: 2, url: '/dashboard', label: "Dashboard"}]
         };
     },
@@ -64,6 +67,14 @@ export default {
         logout() {
             this.$store.dispatch("logout");
         }
+    },
+    created(){
+        let data = localStorage.getItem("user");
+        let json = JSON.parse(data);
+        this.user = json.user;
+    },
+    mounted(){
+        console.log(this.user.name);
     }
 };
 </script>

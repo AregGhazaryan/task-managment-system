@@ -43,7 +43,7 @@
 /******/
 /******/ 	// script path function
 /******/ 	function jsonpScriptSrc(chunkId) {
-/******/ 		return __webpack_require__.p + "" + ({"about":"about","vendors~login":"vendors~login","login":"login"}[chunkId]||chunkId) + ".js"
+/******/ 		return __webpack_require__.p + "" + ({"vendors~about":"vendors~about","about":"about","vendors~login":"vendors~login","login":"login"}[chunkId]||chunkId) + ".js"
 /******/ 	}
 /******/
 /******/ 	// The require function
@@ -2123,12 +2123,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  mounted: function mounted() {
-    console.log(this.$parent.auth);
-  },
   data: function data() {
     return {
+      user: undefined,
       links: [{
         id: 1,
         url: "/",
@@ -2144,6 +2147,14 @@ __webpack_require__.r(__webpack_exports__);
     logout: function logout() {
       this.$store.dispatch("logout");
     }
+  },
+  created: function created() {
+    var data = localStorage.getItem("user");
+    var json = JSON.parse(data);
+    this.user = json.user;
+  },
+  mounted: function mounted() {
+    console.log(this.user.name);
   }
 });
 
@@ -2200,20 +2211,50 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       tasks: null,
       complete: false,
       user: null,
-      search: ''
+      search: ""
     };
   },
   created: function created() {
     var _this = this;
 
     var userInfo = localStorage.getItem("user");
-    var self = this;
     var userData = JSON.parse(userInfo);
     this.user = userData.user;
     axios.get("/api/task", {
@@ -2228,15 +2269,44 @@ __webpack_require__.r(__webpack_exports__);
     });
   },
   methods: {
-    searchResults: function searchResults() {
+    deleteItem: function deleteItem(e) {
       var _this2 = this;
+
+      var id = e.target.dataset.id;
+      var userInfo = localStorage.getItem("user");
+      var userData = JSON.parse(userInfo);
+      axios["delete"]("/api/task/".concat(id), {
+        user: userData,
+        _token: this.csrf
+      }, {
+        headers: {
+          Authorization: "Bearer ".concat(userData.token)
+        }
+      }).then(function (res) {
+        return _this2.flash("Task successfully deleted", "success");
+      })["catch"](function (err) {
+        _this2.flash(err, "error");
+      });
+      axios.get("/api/task", {
+        headers: {
+          Authorization: "Bearer ".concat(userData.token)
+        }
+      }).then(function (res) {
+        _this2.tasks = res.data.tasks;
+        _this2.complete = true;
+      })["catch"](function (err) {
+        console.log(err);
+      });
+    },
+    searchResults: function searchResults() {
+      var _this3 = this;
 
       this.tasks = null;
       this.complete = false;
       var userInfo = localStorage.getItem("user");
       var userData = JSON.parse(userInfo);
       this.user = userData.user;
-      axios.put('/api/task/search', {
+      axios.put("/api/task/search", {
         user: userData,
         keyword: this.search,
         _token: this.csrf
@@ -2245,10 +2315,10 @@ __webpack_require__.r(__webpack_exports__);
           Authorization: "Bearer ".concat(userData.token)
         }
       }).then(function (res) {
-        _this2.tasks = res.data.tasks;
-        _this2.complete = true;
+        _this3.tasks = res.data.tasks;
+        _this3.complete = true;
       })["catch"](function (err) {
-        _this2.flash(err, "error");
+        _this3.flash(err, "error");
       });
     }
   }
@@ -40035,7 +40105,19 @@ var render = function() {
                     : _vm._e()
                 ],
                 1
-              )
+              ),
+              _vm._v(" "),
+              this.user
+                ? _c("li", { staticClass: "nav-item active" }, [
+                    _c("a", { staticClass: "nav-link" }, [
+                      _vm._v(
+                        "\n                " +
+                          _vm._s(this.user.name) +
+                          "\n                "
+                      )
+                    ])
+                  ])
+                : _vm._e()
             ]
           ),
           _vm._v(" "),
@@ -40155,7 +40237,9 @@ var render = function() {
                 "td",
                 [
                   _c("router-link", { attrs: { to: "/task/" + task.id } }, [
-                    _vm._v(_vm._s(task.name))
+                    _vm._v(
+                      "\n              " + _vm._s(task.name) + "\n            "
+                    )
                   ])
                 ],
                 1
@@ -40179,11 +40263,16 @@ var render = function() {
               ),
               _vm._v(" "),
               _c("td", [
-                _vm._v(
-                  "\n                        " +
-                    _vm._s(task.status !== null ? task.status.name : "N/A") +
-                    "\n                    "
-                )
+                task.status
+                  ? _c(
+                      "span",
+                      {
+                        staticClass: "text-white rounded py-1 px-2",
+                        style: "background-color:" + task.status.color
+                      },
+                      [_vm._v(_vm._s(task.status.name) + "\n              ")]
+                    )
+                  : _vm._e()
               ]),
               _vm._v(" "),
               _c(
@@ -40210,6 +40299,18 @@ var render = function() {
                           attrs: { to: "/task/" + task.id }
                         },
                         [_vm._v("Change Status")]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.user.id === task.user.id
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-danger",
+                          attrs: { "data-id": task.id },
+                          on: { click: _vm.deleteItem }
+                        },
+                        [_vm._v("Delete")]
                       )
                     : _vm._e()
                 ],
@@ -59431,7 +59532,7 @@ var routes = [{
     auth: true
   },
   component: function component() {
-    return __webpack_require__.e(/*! import() | about */ "about").then(__webpack_require__.bind(null, /*! ../views/Dashboard.vue */ "./resources/js/views/Dashboard.vue"));
+    return Promise.all(/*! import() | about */[__webpack_require__.e("vendors~about"), __webpack_require__.e("about")]).then(__webpack_require__.bind(null, /*! ../views/Dashboard.vue */ "./resources/js/views/Dashboard.vue"));
   }
 }, {
   path: '/login',
